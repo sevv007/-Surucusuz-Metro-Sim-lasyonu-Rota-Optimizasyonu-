@@ -30,6 +30,27 @@ class MetroAgi:
         istasyon2.komsu_ekle(istasyon1, sure)
     
     def en_az_aktarma_bul(self, baslangic_id: str, hedef_id: str) -> Optional[List[Istasyon]]:
+        if baslangic_id not in self.istasyonlar or hedef_id not in self.istasyonlar:
+            return None
+        queue = deque ([(baslangic, [baslangic])]) # güncel istasyon , rota
+        ziyaret_edildi()
+
+        while queue:
+            suan,rota=queue.popleft()
+            if suan == hedef:
+                return rota
+            
+            if suan in ziyaret_edildi:
+                continue
+
+            ziyaret_edildi.add(suan)
+
+            for komsu,_ in suan.komşular:
+                if komsu not in ziyaret_edildi:
+                 queue.append((komsu, rota +[komsu]))
+            
+            return None #  yol bulunmaz
+        
         """BFS algoritması kullanarak en az aktarmalı rotayı bulur
         
         Bu fonksiyonu tamamlayın:
@@ -44,7 +65,7 @@ class MetroAgi:
         - Her adımda komşu istasyonları keşfedin
         """
         # TODO: Bu fonksiyonu tamamlayın
-        pass
+        #pass
         if baslangic_id not in self.istasyonlar or hedef_id not in self.istasyonlar:
             return None
         baslangic = self.istasyonlar[baslangic_id]
@@ -53,6 +74,35 @@ class MetroAgi:
 
 
     def en_hizli_rota_bul(self, baslangic_id: str, hedef_id: str) -> Optional[Tuple[List[Istasyon], int]]:
+        if baslangic_id not in self.istasyonlar or hedef_id not in self.istasyonlar:
+            return None
+        
+        initial =self.istasyonlar[baslangic_id]
+        hedef = self.istasyonlar[hedef_id]
+
+        pq= [(0,initial, [baslangic])] # toplam süre, güncel istasyon, rota
+        min_sureler={baslangic.idx:0} # istasyon nesnesi yerine id kulanılır.
+        ziyaret_edildi =set() # ziyaret eden istasyonları takip eder.
+
+        while pq:
+            zaman, suan, rota= heapq.heappop(pq)
+
+            if suan.idx in ziyaret_edildi: # ziyaret edildi.
+                continue
+            ziyaret_edildi.add(suan.idx) # ziyaret edildi olarak işaretler
+
+            if suan == hedef:
+                return (rota, zaman)
+
+            for komsu, gecit_suresi in suan.komsular:
+                yeni_sure=sure + gecit_suresi
+
+                if komsu.idx not in min_sureler or yeni_sure < min_sureler[komsu.idx]:
+                    min_sureler[komsu.idx]= yeni_sure
+                    heapq.heappush(pq,(yeni_sure, komsu, rota + [komsu]))
+
+            return None # yol bulma 
+        
         """A* algoritması kullanarak en hızlı rotayı bulur
         
         Bu fonksiyonu tamamlayın:
@@ -68,7 +118,7 @@ class MetroAgi:
         - En düşük süreye sahip rotayı seçin
         """
         # TODO: Bu fonksiyonu tamamlayın
-        pass
+        # pass
         if baslangic_id not in self.istasyonlar or hedef_id not in self.istasyonlar:
             return None
 
