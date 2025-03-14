@@ -1,4 +1,4 @@
-# -Sürücüsüz Metro Sim lasyonu (Rota Optimizasyonu )
+# -Sürücüsüz Metro Simülasyonu (Rota Optimizasyonu )
 
 Bu proje, bir metro ağı üzerinde iki istasyon arasındaki en hızlı ve en az aktarma içeren rotaları bulmayı amaçlayan bir simülasyon geliştirmektedir.
 
