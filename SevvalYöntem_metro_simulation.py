@@ -70,19 +70,27 @@ class MetroAgi:
             return None
         baslangic = self.istasyonlar[baslangic_id]
         hedef = self.istasyonlar[hedef_id]
-        ziyaret_edildi = {baslangic}        
+        ziyaret_edildi = {baslangic}  
 
+
+    def heuristic(self, istasyon1: Istasyon, istasyon2: Istasyon) -> float:
+        """İki istasyon arasındaki düz hat mesafesini hesaplar (Euclidean mesafesi)."""
+        x1, y1 = istasyon1.konum
+        x2, y2 = istasyon2.konum
+        return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+              
 
     def en_hizli_rota_bul(self, baslangic_id: str, hedef_id: str) -> Optional[Tuple[List[Istasyon], int]]:
         if baslangic_id not in self.istasyonlar or hedef_id not in self.istasyonlar:
             return None
         
-        initial =self.istasyonlar[baslangic_id]
+        baslangic =self.istasyonlar[baslangic_id]
         hedef = self.istasyonlar[hedef_id]
 
-        pq= [(0,initial, [baslangic])] # toplam süre, güncel istasyon, rota
-        min_sureler={baslangic.idx:0} # istasyon nesnesi yerine id kulanılır.
-        ziyaret_edildi =set() # ziyaret eden istasyonları takip eder.
+         # (Toplam tahmini maliyet, şu ana kadarki maliyet, istasyon, rota)
+        pq = [(self.heuristic(baslangic, hedef), 0, baslangic, [baslangic])]
+        min_sureler = {baslangic: 0}
+        ziyaret_edildi = set()
 
         while pq:
             zaman, suan, rota= heapq.heappop(pq)
@@ -98,9 +106,9 @@ class MetroAgi:
                 yeni_sure=sure + gecit_suresi
 
                 if komsu.idx not in min_sureler or yeni_sure < min_sureler[komsu.idx]:
-                    min_sureler[komsu.idx]= yeni_sure
-                    heapq.heappush(pq,(yeni_sure, komsu, rota + [komsu]))
-
+                    min_sureler[komsu.idx] = yeni_sure
+                    f_n = yeni_sure + self.heuristic(komsu, hedef)
+                    heapq.heappush(pq, (f_n, yeni_sure, komsu, rota + [komsu.idx]))
             return None # yol bulma 
         
         """A* algoritması kullanarak en hızlı rotayı bulur
